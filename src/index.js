@@ -1,6 +1,7 @@
 import "./style.css";
 import headerBG from "./assets/world.jpeg";
 import project from "./modules/project";
+import loadUserInterface from "./modules/user-interface";
 // const element = document.createElement("div");
 // document.body.appendChild(element);
 // element.classList.add("content2");
@@ -12,3 +13,5 @@ import project from "./modules/project";
 // const headerImg = new Image();
 // headerImg.src = headerBG;
 // content.appendChild(headerImg);
+
+document.addEventListener("DOMContentLoaded", loadUserInterface);
