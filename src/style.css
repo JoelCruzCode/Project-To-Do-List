@@ -1,3 +1,14 @@
+@font-face {
+  font-family: "MyFont";
+  src: url(./assets/fonts/Roboto-Medium.ttf) format("ttf");
+  font-weight: 900;
+  font-style: normal;
+}
+
+:root {
+  font-family: "Roboto", sans-serif;
+}
+
 .hello {
   color: red;
 }
@@ -5,3 +16,30 @@
 .content2 {
   color: blue;
 }
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: 1fr 4fr;
+}
+
+header {
+  grid-column: 1/3;
+  grid-row: 1/2;
+  background-color: burlywood;
+}
+
+aside {
+  grid-area: 2 / 1 / 3 / 2;
+  background-color: aqua;
+}
+
+main {
+  grid-area: 2 / 2 / 3 / 3;
+  min-width: 1000px;
+  background-color: blueviolet;
+}
+
+/* footer {
+  grid-area: 3 / 1 / 4 / 3;
+} */
