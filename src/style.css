@@ -7,14 +7,12 @@
 
 :root {
   font-family: "Roboto", sans-serif;
+  background-color: grey;
+  font-size: 1.3rem;
 }
 
-.hello {
-  color: red;
-}
-
-.content2 {
-  color: blue;
+.hidden {
+  display: none;
 }
 
 .content {
@@ -43,3 +41,36 @@ main {
 /* footer {
   grid-area: 3 / 1 / 4 / 3;
 } */
+
+button {
+  padding: 0.7em 0;
+  width: 100px;
+  border-radius: 10px;
+}
+
+textarea {
+  resize: none;
+}
+
+.main-content {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.task-form > * {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-form,
+.btn-container {
+  padding: 1.2rem;
+  background-color: blue;
+  width: 80%;
+}
+
+.btn-container {
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+}
