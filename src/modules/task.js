@@ -1,4 +1,5 @@
 const task = function (title, dueDate, description) {
+  let type;
   function setTitle(input) {
     title = input;
   }
@@ -11,7 +12,7 @@ const task = function (title, dueDate, description) {
     dueDate = input;
   }
 
-  function getDueDate(input) {
+  function getDueDate() {
     return dueDate;
   }
 
@@ -19,16 +20,15 @@ const task = function (title, dueDate, description) {
     description = input;
   }
 
-  function getDescription(input) {
+  function getDescription() {
     return description;
   }
 
   function setType(input) {
     type = input;
-
-    function getType(input) {
-      return type;
-    }
+  }
+  function getType() {
+    return type;
   }
 
   return {
@@ -38,5 +38,9 @@ const task = function (title, dueDate, description) {
     getDueDate,
     setDescription,
     getDescription,
+    setType,
+    getType,
   };
 };
+
+export default task;
