@@ -32,7 +32,7 @@ const project = function (name) {
 };
 
 const p = project("Inbox");
-console.log(p.getDate(), p.getName());
+// console.log(p.getDate(), p.getName());
 export default project;
 
 // let day = d.getDate();
