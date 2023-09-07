@@ -1,6 +1,6 @@
 import storage from "./storage";
 import task from "./task";
-import appendChildren from "./functions";
+import { appendChildren, validateForm } from "./functions";
 
 const loadUserInterface = function () {
   const content = document.querySelector(".content");
@@ -21,21 +21,47 @@ const loadUserInterface = function () {
     let h3 = document.createElement("h3");
     let d = document.createElement("p");
     let p = document.createElement("p");
-    h3.textContent = t.getTitle();
-    d.textContent = t.getDueDate();
-    p.textContent = t.getDescription();
-    appendChildren(div, [h3, d, p]);
+    let btndiv = document.createElement("div");
+    let editBtn = document.createElement("button");
+    let delBtn = document.createElement("button");
+    div.classList.add("task-div");
+    btndiv.classList.add("btn-container");
+    h3.textContent = `Title: ${t.getTitle()}`;
+    p.textContent = `Description: ${t.getDescription()}`;
+    d.textContent = `Date: ${t.getDueDate()}`;
+    editBtn.textContent = "Edit";
+    delBtn.textContent = "Delete";
+    appendChildren(btndiv, [editBtn, delBtn]);
+    appendChildren(div, [h3, p, d, btndiv]);
     taskContainer.appendChild(div);
   }
 
-  function initialRender() {
-    taskContainer.textContent = ``;
-    let mainStorage = storage.getStorage();
-    title.textContent = mainStorage.projects.inbox.name;
-    mainStorage.projects.inbox.tasks.forEach((t) => {
-      renderTask(t);
-    });
+  function renderSelection() {
+    const select = document.querySelector("select");
+    let data = storage.getStorage();
+    // console.log(data.projects);
+    for (let [key, v] of Object.entries(data.projects)) {
+      // console.log(key);
+      let option = document.createElement("option");
+      option.value = key;
+      option.textContent = key;
+      select.appendChild(option);
+    }
+  }
 
+  function initialRender() {
+    // renderSelection();
+    // taskContainer.textContent = ``;
+    // // let mainStorage = storage.getStorage();
+    // title.textContent = mainStorage.projects.inbox.name;
+    // console.log(title.textContent);
+    // console.log(mainStorage);
+    // mainStorage.projects.inbox.tasks.forEach((t) => {
+    //   // renderTask(t);
+    //   // console.log(t);
+    //   // console.log(t.title);
+    //   // console.log(t.getTitle());
+    // });
     // main and title will load local storage info
     // projects will load local storage info
   }
@@ -49,15 +75,17 @@ const loadUserInterface = function () {
   }
 
   function addForm() {
-    const title = document.getElementById("name").value;
-    const date = document.getElementById("date").value;
-    const description = document.getElementById("description").value;
-    const type = document.getElementById("type").value;
-    let t = task(title, date, description);
-    t.setType(type);
+    if (validateForm()) {
+      const title = document.getElementById("name").value;
+      const date = document.getElementById("date").value;
+      const description = document.getElementById("description").value;
+      const type = document.getElementById("type").value;
+      let t = task(title, date, description);
+      t.setType(type);
 
-    storage.addTask(type, t);
-    renderTask(t);
+      storage.addTask(type, t);
+      renderTask(t);
+    }
   }
 
   initialRender();
@@ -69,6 +97,7 @@ const loadUserInterface = function () {
   confirmBtn.addEventListener("click", function (e) {
     e.preventDefault();
     addForm();
+    toggleForm();
   });
 };
 
