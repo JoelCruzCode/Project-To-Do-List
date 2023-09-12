@@ -1,5 +1,6 @@
 const task = function (title, dueDate, description) {
   let type;
+  let id;
   function setTitle(input) {
     title = input;
   }
@@ -31,6 +32,14 @@ const task = function (title, dueDate, description) {
     return type;
   }
 
+  function getId() {
+    return id;
+  }
+
+  function setId(input) {
+    id = input;
+  }
+
   return {
     setTitle,
     getTitle,
@@ -40,6 +49,8 @@ const task = function (title, dueDate, description) {
     getDescription,
     setType,
     getType,
+    getId,
+    setId,
   };
 };
 
