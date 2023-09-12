@@ -1,5 +1,5 @@
 import task from "./task";
-
+import { format } from "date-fns";
 const Storage = function () {
   localStorage.clear();
   let storedData = localStorage.getItem("storageData");
@@ -19,23 +19,24 @@ const Storage = function () {
           name: "Inbox",
           date: "06/06/2019",
           tasks: [],
+          id: "123",
         },
         school: {
           name: "School",
           date: "09/09/2020",
           tasks: [],
+          id: "987",
         },
       },
     };
   }
 
-  function addTask(key, t) {
-    const newTask = task(t.title, t.dueDate, t.description);
-    console.log("Adding Task:", newTask);
+  function addTask(key, obj) {
+    obj.id = Math.random().toString().slice(2);
+    console.log(obj.id);
     if (!storageData.projects[key].tasks) {
-      storageData.projects[key].tasks = [newTask];
-    } else storageData.projects[key].tasks.push(newTask);
-
+      storageData.projects[key].tasks = [obj];
+    } else storageData.projects[key].tasks.push(obj);
     // Update localStorage with the modified data
     localStorage.setItem("storageData", JSON.stringify(storageData));
     console.log("Updated Data:", storageData);
@@ -47,15 +48,79 @@ const Storage = function () {
     );
   }
 
-  function deleteTask(key, task) {
-    // Implement your deleteTask logic here
+  function deleteTask(key, obj) {
+    let tasksArr = storageData.projects[key].tasks.filter(
+      (t) => t.id !== obj.id
+    );
+    console.log("DELETING");
+    storageData.projects[key].tasks = tasksArr;
+    console.log(tasksArr);
+    localStorage.setItem("storageData", JSON.stringify(storageData));
+    console.log("Updated Data:", storageData);
+
+    console.log("Updated Local Storage:", localStorage.getItem("storageData"));
+    console.log(
+      "updated Parsed:",
+      JSON.parse(localStorage.getItem("storageData"))
+    );
   }
 
+  function addProject(key) {
+    storageData.projects[key] = {
+      name: `${key.slice(0, 1).toUpperCase() + key.slice(1)}`,
+      date: format(new Date(), "mm/dd/yyyy"),
+      tasks: [],
+      id: Math.random().toString().slice(2),
+    };
+  }
+
+  function deleteProject(key, obj) {
+    let field = storageData.projects[key];
+    if (field) {
+      if ((field.id = obj.id)) delete storageData.projects[key];
+    } else console.log(`No Project under the name ${key} exists`);
+  }
+
+  function convertTasks() {
+    Object.values(storageData.projects).forEach(
+      (project) =>
+        (project.tasks = project.tasks.map((t) => {
+          // console.log(t);
+          let current = task(t.title, t.dueDate, t.description);
+          current.setId(t.id);
+          return current;
+          // console.log(t);
+        }))
+    );
+  }
+
+  function revertTasks() {
+    Object.values(storageData.projects).forEach(
+      (project) =>
+        (project.tasks = project.tasks.map((t) => {
+          let current = {
+            title: t.getTitle(),
+            dueDate: t.getDueDate(),
+            description: t.getDescription(),
+            id: t.getId(),
+          };
+          return current;
+        }))
+    );
+  }
   function getStorage() {
     return storageData;
   }
 
-  return { addTask, deleteTask, getStorage };
+  return {
+    addTask,
+    deleteTask,
+    addProject,
+    deleteProject,
+    getStorage,
+    convertTasks,
+    revertTasks,
+  };
 };
 
 let storage = Storage();
@@ -74,9 +139,26 @@ storage.addTask("inbox", {
   description: "round2? ",
 });
 
-// let mainStorage = storage.getStorage();
+let mainStorage = storage.getStorage();
 
 // console.log("main Storage: ", mainStorage);
+// storage.convertTasks();
+// console.log("Converted Storage: ", mainStorage);
+// setTimeout(function () {
+//   storage.revertTasks();
+//   console.log("Reverted Storage: ", mainStorage);
+// }, 10000);
+// storage.revertTasks();
+
+// console.log("Reverted Storage: ", mainStorage);
+// console.log(mainStorage.projects["inbox"].tasks[1].id);
+// storage.deleteTask("inbox", mainStorage.projects["inbox"].tasks[1]);
+// console.log("main Storage!: ", mainStorage);
+// storage.deleteProject("inbox", mainStorage.projects["inbox"]);
+// storage.addProject("cookies");
+// console.log("main Storage!!!: ", mainStorage);
+
+/////
 
 // mainStorage.projects.inbox.tasks.forEach((t) => {
 //   console.log("t", t);
@@ -108,3 +190,23 @@ storageData {
     }
 }
 */
+
+///////////////////////////////
+
+// function addTask(key, t) {
+//   const newTask = task(t.title, t.dueDate, t.description);
+//   console.log("Adding Task:", newTask);
+//   if (!storageData.projects[key].tasks) {
+//     storageData.projects[key].tasks = [newTask];
+//   } else storageData.projects[key].tasks.push(newTask);
+
+//   // Update localStorage with the modified data
+//   localStorage.setItem("storageData", JSON.stringify(storageData));
+//   console.log("Updated Data:", storageData);
+
+//   console.log("Updated Local Storage:", localStorage.getItem("storageData"));
+//   console.log(
+//     "updated Parsed:",
+//     JSON.parse(localStorage.getItem("storageData"))
+//   );
+// }
