@@ -139,7 +139,7 @@ storage.addTask("inbox", {
   description: "round2? ",
 });
 
-let mainStorage = storage.getStorage();
+// let mainStorage = storage.getStorage();
 
 // console.log("main Storage: ", mainStorage);
 // storage.convertTasks();
@@ -150,23 +150,6 @@ let mainStorage = storage.getStorage();
 // }, 10000);
 // storage.revertTasks();
 
-// console.log("Reverted Storage: ", mainStorage);
-// console.log(mainStorage.projects["inbox"].tasks[1].id);
-// storage.deleteTask("inbox", mainStorage.projects["inbox"].tasks[1]);
-// console.log("main Storage!: ", mainStorage);
-// storage.deleteProject("inbox", mainStorage.projects["inbox"]);
-// storage.addProject("cookies");
-// console.log("main Storage!!!: ", mainStorage);
-
-/////
-
-// mainStorage.projects.inbox.tasks.forEach((t) => {
-//   console.log("t", t);
-//   console.log("direct notation:", t.title); // Access the title property
-//   console.log("getTitle():", t.getTitle()); // Access the getTitle() method
-//   console.log("getDueDate():", t.getDueDate());
-//   console.log("getDescription():", t.getDescription());
-// });
 /*
 storageData {
     Projects: {
@@ -190,23 +173,3 @@ storageData {
     }
 }
 */
-
-///////////////////////////////
-
-// function addTask(key, t) {
-//   const newTask = task(t.title, t.dueDate, t.description);
-//   console.log("Adding Task:", newTask);
-//   if (!storageData.projects[key].tasks) {
-//     storageData.projects[key].tasks = [newTask];
-//   } else storageData.projects[key].tasks.push(newTask);
-
-//   // Update localStorage with the modified data
-//   localStorage.setItem("storageData", JSON.stringify(storageData));
-//   console.log("Updated Data:", storageData);
-
-//   console.log("Updated Local Storage:", localStorage.getItem("storageData"));
-//   console.log(
-//     "updated Parsed:",
-//     JSON.parse(localStorage.getItem("storageData"))
-//   );
-// }
