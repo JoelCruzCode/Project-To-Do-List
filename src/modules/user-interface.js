@@ -19,29 +19,27 @@ const loadUserInterface = function () {
   function renderTask(t) {
     let div = document.createElement("div");
     let h3 = document.createElement("h3");
-    let d = document.createElement("p");
-    let p = document.createElement("p");
+    let date = document.createElement("p");
+    let description = document.createElement("p");
     let btndiv = document.createElement("div");
     let editBtn = document.createElement("button");
     let delBtn = document.createElement("button");
     div.classList.add("task-div");
     btndiv.classList.add("btn-container");
     h3.textContent = `Title: ${t.getTitle()}`;
-    p.textContent = `Description: ${t.getDescription()}`;
-    d.textContent = `Date: ${t.getDueDate()}`;
+    description.textContent = `Description: ${t.getDescription()}`;
+    date.textContent = `Date: ${t.getDueDate()}`;
     editBtn.textContent = "Edit";
     delBtn.textContent = "Delete";
     appendChildren(btndiv, [editBtn, delBtn]);
-    appendChildren(div, [h3, p, d, btndiv]);
+    appendChildren(div, [h3, description, date, btndiv]);
     taskContainer.appendChild(div);
   }
 
   function renderSelection() {
     const select = document.querySelector("select");
     let data = storage.getStorage();
-    // console.log(data.projects);
     for (let [key, v] of Object.entries(data.projects)) {
-      // console.log(key);
       let option = document.createElement("option");
       option.value = key;
       option.textContent = key;
@@ -50,18 +48,16 @@ const loadUserInterface = function () {
   }
 
   function initialRender() {
-    // renderSelection();
-    // taskContainer.textContent = ``;
-    // // let mainStorage = storage.getStorage();
-    // title.textContent = mainStorage.projects.inbox.name;
-    // console.log(title.textContent);
-    // console.log(mainStorage);
-    // mainStorage.projects.inbox.tasks.forEach((t) => {
-    //   // renderTask(t);
-    //   // console.log(t);
-    //   // console.log(t.title);
-    //   // console.log(t.getTitle());
-    // });
+    renderSelection();
+    taskContainer.textContent = ``;
+    storage.convertTasks();
+    let mainStorage = storage.getStorage();
+    title.textContent = mainStorage.projects.inbox.name;
+    console.log(title.textContent);
+    console.log(mainStorage);
+    mainStorage.projects.inbox.tasks.forEach((t) => {
+      renderTask(t);
+    });
     // main and title will load local storage info
     // projects will load local storage info
   }
