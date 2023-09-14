@@ -25,12 +25,15 @@ const loadUserInterface = function () {
     let editBtn = document.createElement("button");
     let delBtn = document.createElement("button");
     div.classList.add("task-div");
+    div.setAttribute("data-id", `${t.getId()}`);
     btndiv.classList.add("btn-container");
     h3.textContent = `Title: ${t.getTitle()}`;
     description.textContent = `Description: ${t.getDescription()}`;
     date.textContent = `Date: ${t.getDueDate()}`;
     editBtn.textContent = "Edit";
+    editBtn.classList.add("edit-btn");
     delBtn.textContent = "Delete";
+    delBtn.classList.add("del-btn");
     appendChildren(btndiv, [editBtn, delBtn]);
     appendChildren(div, [h3, description, date, btndiv]);
     taskContainer.appendChild(div);
@@ -58,6 +61,7 @@ const loadUserInterface = function () {
     mainStorage.projects.inbox.tasks.forEach((t) => {
       renderTask(t);
     });
+    storage.revertTasks();
     // main and title will load local storage info
     // projects will load local storage info
   }
@@ -77,10 +81,16 @@ const loadUserInterface = function () {
       const description = document.getElementById("description").value;
       const type = document.getElementById("type").value;
       let t = task(title, date, description);
+      // let tObj = { title };
       t.setType(type);
 
       storage.addTask(type, t);
       renderTask(t);
+    }
+  }
+
+  function editForm() {
+    if (validateForm()) {
     }
   }
 
@@ -94,6 +104,19 @@ const loadUserInterface = function () {
     e.preventDefault();
     addForm();
     toggleForm();
+  });
+
+  taskContainer.addEventListener("click", function (e) {
+    let button = e.target;
+
+    if (button.classList.contains("edit-btn")) {
+      // edit task function here
+    } else if (button.classList.contains("del-btn")) {
+      // delete task here
+    }
+    let target = e.target.closest(".edit-btn");
+    let targetDiv = e.target.closest(".task-div");
+    let id = targetDiv.getAttribute("data-id");
   });
 };
 
