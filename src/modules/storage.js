@@ -1,7 +1,9 @@
+import { hi } from "date-fns/locale";
 import task from "./task";
 import { format } from "date-fns";
+
 const Storage = function () {
-  // localStorage.clear();
+  localStorage.clear();
   let storedData = localStorage.getItem("storageData");
   console.log("Stored Data:", storedData);
   let storageData;
@@ -43,8 +45,11 @@ const Storage = function () {
     );
   }
 
-  function addTask(key, obj) {
-    obj.id = Math.random().toString().slice(2);
+  function addTask(obj, key) {
+    // obj.id = Math.random().toString().slice(2);
+    // why does id return undefined when i try to create it in task object
+    // changed logic in addForm()
+    obj.type = key;
     console.log(obj.id);
     if (!storageData.projects[key].tasks) {
       storageData.projects[key].tasks = [obj];
@@ -52,22 +57,23 @@ const Storage = function () {
     updateStorage();
   }
 
-  function deleteTask(key, obj) {
+  function deleteTask(obj, key) {
     convertTasks(key);
     let tasksArr = storageData.projects[key].tasks.filter(
       (t) => t.getId() !== obj.id
     );
     console.log(`DELETING`);
     storageData.projects[key].tasks = tasksArr;
+    console.log("taskArr: ", tasksArr);
     revertTasks(key);
-    console.log("taskarr", tasksArr);
     updateStorage();
   }
 
-  function editTask(key, id) {
+  function editTask(obj, key) {
     let tasksArr = storageData.projects[key].tasks;
-    let index = tasksArr.findIndex((t) => t.id === id);
-    tasksArr[index];
+    let index = tasksArr.findIndex((t) => t.id === obj.id);
+    tasksArr[index] = obj;
+    updateStorage();
   }
 
   function addProject(key) {
@@ -88,11 +94,14 @@ const Storage = function () {
 
   function convertTasks(key) {
     if (key) {
+      console.log("key: ", key);
       Object.values(
         (storageData.projects[key].tasks = storageData.projects[key].tasks.map(
           (t) => {
             let current = task(t.title, t.dueDate, t.description);
             current.setId(t.id);
+            current.setType(t.type);
+            console.log("converted task: ", current);
             return current;
           }
         ))
@@ -104,6 +113,7 @@ const Storage = function () {
             // console.log(t);
             let current = task(t.title, t.dueDate, t.description);
             current.setId(t.id);
+            current.setType(t.type);
             return current;
             // console.log(t);
           }))
@@ -120,7 +130,10 @@ const Storage = function () {
               dueDate: t.getDueDate(),
               description: t.getDescription(),
               id: t.getId(),
+              type: t.getType(),
             };
+
+            console.log("reverted task: ", current);
             return current;
           }
         ))
@@ -134,6 +147,7 @@ const Storage = function () {
               dueDate: t.getDueDate(),
               description: t.getDescription(),
               id: t.getId(),
+              type: t.getType(),
             };
             return current;
           }))
@@ -145,6 +159,7 @@ const Storage = function () {
 
   return {
     addTask,
+    editTask,
     deleteTask,
     addProject,
     deleteProject,
@@ -158,29 +173,45 @@ let storage = Storage();
 export default storage;
 // Create an instance of the task object
 
-// storage.addTask("inbox", {
-//   title: "hello",
-//   dueDate: "12/12/2015",
-//   description: "will it finally work? ",
-// });
+storage.addTask(
+  {
+    title: "hello",
+    dueDate: "2023-12-12",
+    description: "will it finally work? ",
+    id: "123",
+  },
+  "inbox"
+);
 
-// storage.addTask("inbox", {
-//   title: "hi",
-//   dueDate: "12/12/2015",
-//   description: "round2? ",
-// });
+storage.addTask(
+  {
+    title: "hi",
+    dueDate: "12-12-2015",
+    description: "round2? ",
+    id: "345",
+  },
+  "inbox"
+);
 
-// storage.addTask("school", {
-//   title: "hello",
-//   dueDate: "12/12/2015",
-//   description: "will it finally work? ",
-// });
+storage.addTask(
+  {
+    title: "hello",
+    dueDate: "12/12/2015",
+    description: "will it finally work? ",
+    id: "456",
+  },
+  "school"
+);
 
-// storage.addTask("school", {
-//   title: "hi",
-//   dueDate: "12/12/2015",
-//   description: "round2? ",
-// });
+storage.addTask(
+  {
+    title: "hi",
+    dueDate: "12/12/2015",
+    description: "round2? ",
+    id: "567",
+  },
+  "school"
+);
 
 let mainStorage = storage.getStorage();
 // let identifier = mainStorage.projects.inbox.tasks[0].id;
