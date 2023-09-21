@@ -1,6 +1,7 @@
 const task = function (title, dueDate, description) {
   let type;
-  let id;
+  let id = Math.random().toString().slice(2);
+
   function setTitle(input) {
     title = input;
   }
