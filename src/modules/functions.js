@@ -2,8 +2,8 @@ const appendChildren = (parent, children) => {
   children.forEach((child) => parent.appendChild(child));
 };
 
-function validateForm() {
-  let x = document.forms["task-form"]["name"].value;
+function validateForm(form) {
+  let x = document.forms[form]["name"].value;
   if (x == "") {
     alert("Title must be filled out");
     return false;
@@ -12,4 +12,8 @@ function validateForm() {
   }
 }
 
-export { appendChildren, validateForm };
+function insertAfter(newNode, existingNode) {
+  existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+}
+
+export { appendChildren, validateForm, insertAfter };
