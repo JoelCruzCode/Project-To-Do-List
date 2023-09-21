@@ -64,15 +64,22 @@ textarea {
 
 .task-form,
 .btn-container,
+.edit-form,
+.edit-btn-container,
 .task-div {
   padding: 1.2rem;
   background-color: blue;
   width: 80%;
 }
 
-.btn-container {
+.btn-container,
+.edit-btn-container {
   display: flex;
   flex-direction: row;
   justify-content: center;
   gap: 1rem;
+}
+
+.highlight {
+  background-color: rgb(203, 140, 240);
 }
