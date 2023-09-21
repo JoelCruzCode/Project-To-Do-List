@@ -13,7 +13,7 @@ const project = function (name) {
   }
 
   function setDate() {
-    dateCreated = format(new Date(), "mm/dd/yyyy");
+    dateCreated = format(new Date(), "mm-dd-yyyy");
   }
 
   function getDate() {
@@ -31,10 +31,12 @@ const project = function (name) {
   return { getName, setName, getDate, addSection };
 };
 
-const p = project("Inbox");
+// const p = project("Inbox");
 // console.log(p.getDate(), p.getName());
+
 export default project;
 
+// console.log(new Date());
 // let day = d.getDate();
 // let month = d.getMonth();
 // let year = d.getFullYear();
