@@ -1,4 +1,3 @@
-import { hi } from "date-fns/locale";
 import task from "./task";
 import { format } from "date-fns";
 
@@ -72,7 +71,13 @@ const Storage = function () {
   function editTask(obj, key) {
     let tasksArr = storageData.projects[key].tasks;
     let index = tasksArr.findIndex((t) => t.id === obj.id);
-    tasksArr[index] = obj;
+    if (tasksArr[index].type === obj.type) {
+      tasksArr[index] = obj;
+    } else {
+      let updatedArray = tasksArr.filter((t) => t.id !== obj.id);
+      storageData.projects[key].tasks = updatedArray;
+      storageData.projects[obj.type].tasks.push(obj);
+    }
     updateStorage();
   }
 
@@ -176,7 +181,7 @@ export default storage;
 storage.addTask(
   {
     title: "hello",
-    dueDate: "2023-12-12",
+    dueDate: "09-25-2023",
     description: "will it finally work? ",
     id: "123",
   },
@@ -196,7 +201,7 @@ storage.addTask(
 storage.addTask(
   {
     title: "hello",
-    dueDate: "12/12/2015",
+    dueDate: "12-12-2015",
     description: "will it finally work? ",
     id: "456",
   },
@@ -206,7 +211,7 @@ storage.addTask(
 storage.addTask(
   {
     title: "hi",
-    dueDate: "12/12/2015",
+    dueDate: "09-23-2023",
     description: "round2? ",
     id: "567",
   },
