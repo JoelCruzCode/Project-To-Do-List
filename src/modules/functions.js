@@ -16,4 +16,14 @@ function insertAfter(newNode, existingNode) {
   existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 
-export { appendChildren, validateForm, insertAfter };
+function formatDate(string) {
+  let split = string.split("-");
+  return `${split[1]}-${split[2]}-${split[0]}`;
+}
+
+function formatDueDate(string) {
+  let split = string.split("-");
+  return `${split[2]}-${split[0]}-${split[1]}`;
+}
+
+export { appendChildren, validateForm, insertAfter, formatDate, formatDueDate };
