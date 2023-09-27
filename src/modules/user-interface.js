@@ -1,7 +1,15 @@
 import storage from "./storage";
 import task from "./task";
-import { appendChildren, validateForm, insertAfter } from "./functions";
-import { format } from "date-fns";
+import {
+  appendChildren,
+  validateForm,
+  insertAfter,
+  formatDate,
+  formatDueDate,
+} from "./functions";
+import { format, isFuture, parseISO } from "date-fns";
+import { renderSideBar } from "./user-interface/sidebar";
+
 const loadUserInterface = function () {
   // Main UI Elements
   const content = document.querySelector(".content");
@@ -13,7 +21,6 @@ const loadUserInterface = function () {
   const btnContainer = document.querySelector(".btn-container");
   const confirmBtn = document.querySelector(".confirm-form");
   const cancelBtn = document.querySelector(".cancel-form");
-  //
   const editTaskForm = document.querySelector(".edit-form");
   const editBtnContainer = document.querySelector(".edit-btn-container");
   const editConfirmBtn = document.querySelector(".edit-confirm-btn");
@@ -21,13 +28,15 @@ const loadUserInterface = function () {
   const select = document.querySelector(".add-select");
   const editSelect = document.querySelector(".edit-select");
 
-  // Aside UI Elements
-  const projects = document.querySelector(".projects");
-
-  // create a span? that will show the numerical value of tasks created in aside
-  // Can also make this an preference option to toggle
-
   let mainStorage = storage.getStorage();
+  initialRender("inbox");
+
+  // Aside UI Elements
+  const allBtn = document.querySelector(".all-btn");
+  const todayBtn = document.querySelector(".today-btn");
+  const upcomingBtn = document.querySelector(".upcoming-btn");
+  const projects = document.querySelector(".projects");
+  const tasks = document.querySelector(".aside-tasks");
 
   function renderTask(t) {
     let div = document.createElement("div");
@@ -74,35 +83,50 @@ const loadUserInterface = function () {
     }
   }
 
-  function renderSideBar() {
-    projects.textContent = ``;
-    for (let [key, value] of Object.entries(mainStorage.projects)) {
-      console.log(key, value);
-      let p = document.createElement("p");
-      p.textContent = `${key} `;
-      let span = document.createElement("span");
-      span.classList.add("highlight");
-      span.textContent = value.tasks.length;
-      p.appendChild(span);
-      projects.appendChild(p);
-      // values.tasks.forEach((_, index) => taskCount += (index + 1))
-    }
-  }
-
-  // Should probably replace task in window instead of reloading/rendering all tasks again
   function initialRender(key) {
-    // Main UI
     renderSelection(select);
     taskContainer.textContent = ``;
     storage.convertTasks();
-    mainTitle.textContent = mainStorage.projects[key].name;
-    console.log(mainTitle.textContent);
-    console.log(mainStorage);
-    mainStorage.projects[key].tasks.forEach((t) => {
-      renderTask(t);
-    });
+    key = key.slice(0, 1).toLowerCase() + key.slice(1);
+    if (key === "all") {
+      mainTitle.textContent = "All";
+      for (let project of Object.values(mainStorage.projects)) {
+        project.tasks.forEach((task) => {
+          renderTask(task);
+        });
+      }
+    } else if (key === "today") {
+      mainTitle.textContent = "Today";
+      for (let project of Object.values(mainStorage.projects)) {
+        project.tasks.forEach((task) => {
+          let today = format(new Date(), "MM-dd-yyyy");
+          if (task.getDueDate() === today) {
+            renderTask(task);
+          }
+        });
+      }
+    } else if (key === "upcoming") {
+      mainTitle.textContent = "Upcoming";
+      for (let project of Object.values(mainStorage.projects)) {
+        project.tasks.forEach((task) => {
+          // let today = format(new Date(), "MM-dd-yyyy");
+          let due = formatDueDate(task.getDueDate());
+          if (isFuture(parseISO(due))) {
+            renderTask(task);
+          }
+        });
+      }
+    } else {
+      console.log("this is the key: ", key, typeof key);
+      // Main UI
+      mainTitle.textContent = mainStorage.projects[key].name;
+      mainStorage.projects[key].tasks.forEach((task) => {
+        renderTask(task);
+      });
+    }
+
     // Aside UI
-    renderSideBar();
+    renderSideBar(mainStorage);
     storage.revertTasks();
   }
 
@@ -114,27 +138,28 @@ const loadUserInterface = function () {
   function submitForm() {
     if (validateForm("task-form")) {
       const title = document.getElementById("name").value;
-      const date = document.getElementById("date").value;
+      const rawDate = document.getElementById("date").value;
+      const date = rawDate ? formatDate(rawDate) : "";
+      // Check if this change to date correctly updates the sidebar upcoming/today
+      // Check if edit task is affected by this
       const description = document.getElementById("description").value;
       const type = document.getElementById("type").value;
-      let taskInstance = task(title, date, description);
+      let updatedDescription = description.trim() !== "" ? description : "";
+      let taskInstance = task(title, date, updatedDescription);
       taskInstance.setType(type);
 
       let t = {
         title: title,
         dueDate: date,
-        description: description,
+        description: updatedDescription,
         id: taskInstance.getId(),
         type: type,
       };
 
       storage.addTask(t, type);
 
-      // Rendering the single task instead of all tasks
-      let titleCaseType = type.slice(0, 1).toUpperCase() + type.slice(1);
-      if (titleCaseType === mainTitle.textContent) {
-        renderTask(taskInstance);
-      }
+      // Rendering all task instead of 1. Space Complexity is not an issue due to local storage limitations
+      initialRender(mainTitle.textContent);
     }
   }
 
@@ -144,30 +169,39 @@ const loadUserInterface = function () {
     insertAfter(editTaskForm, buttonDiv);
     renderSelection(editSelect);
     toggleForm(editTaskForm, editBtnContainer);
-    let div = target.closest(".task-div");
     let children = target.closest(".task-div").children;
     const title = document.getElementById("edit-name");
     const description = document.getElementById("edit-description");
+    // let updatedDescription = description.trim() !== "" ? description : "";
     const date = document.getElementById("edit-date");
     let elements = [title, description];
     elements.forEach((el, i) => {
-      el.value = children[i].innerText.split(": ")[1];
+      if (!children[i].innerText.split(": ")[1]) {
+        el.value = "";
+      } else {
+        el.value = children[i].innerText.split(": ")[1];
+      }
     });
-    console.log(children[2].innerText.split(": ")[1]);
-    let split = children[2].innerText.split(": ")[1].split("-");
-    console.log(format(new Date(split[0], split[1], split[2]), "mm/dd/yyyy"));
-    date.value = children[2].innerText.split(": ")[1];
-    // date.value = format(splitDate, "yyyy/mm/dd");
+
+    let splitDate = children[2].innerText.split(": ")[1];
+
+    if (splitDate) {
+      splitDate = splitDate.split("-");
+      let formattedDate = [splitDate[2], splitDate[0], splitDate[1]].join("-");
+      date.value = formattedDate;
+    } else {
+      date.value = "";
+    }
   }
 
   function submitEditForm(e) {
     if (validateForm("edit-form")) {
       let div = e.target.closest(".task-div");
       const title = document.getElementById("edit-name").value;
-      const date = document.getElementById("edit-date").value;
+      const date = formatDate(document.getElementById("edit-date").value);
       const description = document.getElementById("edit-description").value;
       const type = document.getElementById("edit-type").value;
-      //
+
       let taskInstance = task(title, date, description);
       taskInstance.setType(type);
       //
@@ -178,32 +212,27 @@ const loadUserInterface = function () {
         id: div.dataset.id,
         type: type,
       };
+      console.log("t:type:", t.type);
+      console.log("t:id:", t.id);
       console.log("during:", taskContainer.children);
 
       let data = storage.getStorage();
       for (let [key, value] of Object.entries(data.projects)) {
-        // console.log(value, div.dataset.type);
         value.tasks.forEach((task, index) => {
           if (task.id === div.dataset.id) {
-            // console.log(index, key, task);
-
             // rendering all tasks in key after editing task in storage
             storage.editTask(t, key);
             toggleForm(editTaskForm, editBtnContainer);
-            initialRender(key);
-            // storage.convertTasks(key)
-            // taskContainer.children[index] = data.projects[key].tasks[index]
+            initialRender(mainTitle.textContent);
           }
         });
       }
     }
   }
 
-  initialRender("inbox");
-
   // Event Listeners
 
-  // Add Task Listeners
+  // Add Task
   taskBtn.addEventListener("click", function (e) {
     toggleForm(taskForm, taskBtn, confirmBtn, cancelBtn);
   });
@@ -218,7 +247,7 @@ const loadUserInterface = function () {
     toggleForm(taskForm, taskBtn, confirmBtn, cancelBtn);
   });
 
-  // Edit Task Listeners
+  // Edit Task
   taskContainer.addEventListener("click", function (e) {
     let button = e.target;
 
@@ -236,7 +265,9 @@ const loadUserInterface = function () {
         description: description,
       };
       storage.deleteTask(task, type);
-      initialRender(type);
+      console.log("deleting");
+      console.log(mainTitle.textContent);
+      initialRender(mainTitle.textContent);
     }
   });
 
@@ -248,6 +279,26 @@ const loadUserInterface = function () {
 
   editCancelBtn.addEventListener("click", function (e) {
     toggleForm(editTaskForm, editBtnContainer);
+  });
+
+  // SideBar
+  tasks.addEventListener("click", function (e) {
+    let element = e.target;
+    if (element.tagName === "BUTTON") {
+      let field = element.textContent.split(" ")[0];
+      initialRender(field);
+    }
+  });
+
+  projects.addEventListener("click", function (e) {
+    let button = e.target;
+
+    if (button.classList.contains("project-btn")) {
+      if (button.textContent) {
+        let field = button.textContent.split(" ")[0];
+        initialRender(field);
+      }
+    }
   });
 };
 
