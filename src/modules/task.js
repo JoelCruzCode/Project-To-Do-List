@@ -1,4 +1,4 @@
-const task = function (title, dueDate, description) {
+function task(title, dueDate, description) {
   let type;
   let id = Math.random().toString().slice(2);
 
@@ -53,6 +53,6 @@ const task = function (title, dueDate, description) {
     getId,
     setId,
   };
-};
+}
 
 export default task;

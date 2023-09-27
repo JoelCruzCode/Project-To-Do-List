@@ -1,9 +1,9 @@
-import task from "./task";
 import { format } from "date-fns";
+import task from "./task";
 
-const Storage = function () {
+function Storage() {
   localStorage.clear();
-  let storedData = localStorage.getItem("storageData");
+  const storedData = localStorage.getItem("storageData");
   console.log("Stored Data:", storedData);
   let storageData;
   if (storedData) {
@@ -44,10 +44,71 @@ const Storage = function () {
     );
   }
 
+  function convertTasks(key) {
+    if (key) {
+      console.log("key: ", key);
+      Object.values(
+        (storageData.projects[key].tasks = storageData.projects[key].tasks.map(
+          (t) => {
+            const current = task(t.title, t.dueDate, t.description);
+            current.setId(t.id);
+            current.setType(t.type);
+            console.log("converted task: ", current);
+            return current;
+          }
+        ))
+      );
+    } else {
+      Object.values(storageData.projects).forEach(
+        (project) =>
+          (project.tasks = project.tasks.map((t) => {
+            // console.log(t);
+            const current = task(t.title, t.dueDate, t.description);
+            current.setId(t.id);
+            current.setType(t.type);
+            return current;
+            // console.log(t);
+          }))
+      );
+    }
+  }
+
+  function revertTasks(key) {
+    if (key) {
+      Object.values(
+        (storageData.projects[key].tasks = storageData.projects[key].tasks.map(
+          (t) => {
+            const current = {
+              title: t.getTitle(),
+              dueDate: t.getDueDate(),
+              description: t.getDescription(),
+              id: t.getId(),
+              type: t.getType(),
+            };
+
+            console.log("reverted task: ", current);
+            return current;
+          }
+        ))
+      );
+    } else {
+      Object.values(storageData.projects).forEach(
+        (project) =>
+          (project.tasks = project.tasks.map((t) => {
+            const current = {
+              title: t.getTitle(),
+              dueDate: t.getDueDate(),
+              description: t.getDescription(),
+              id: t.getId(),
+              type: t.getType(),
+            };
+            return current;
+          }))
+      );
+    }
+  }
+
   function addTask(obj, key) {
-    // obj.id = Math.random().toString().slice(2);
-    // why does id return undefined when i try to create it in task object
-    // changed logic in addForm()
     obj.type = key;
     console.log(obj.id);
     if (!storageData.projects[key].tasks) {
@@ -58,10 +119,10 @@ const Storage = function () {
 
   function deleteTask(obj, key) {
     convertTasks(key);
-    let tasksArr = storageData.projects[key].tasks.filter(
+    const tasksArr = storageData.projects[key].tasks.filter(
       (t) => t.getId() !== obj.id
     );
-    console.log(`DELETING`);
+    console.log("DELETING");
     storageData.projects[key].tasks = tasksArr;
     console.log("taskArr: ", tasksArr);
     revertTasks(key);
@@ -69,12 +130,12 @@ const Storage = function () {
   }
 
   function editTask(obj, key) {
-    let tasksArr = storageData.projects[key].tasks;
-    let index = tasksArr.findIndex((t) => t.id === obj.id);
+    const tasksArr = storageData.projects[key].tasks;
+    const index = tasksArr.findIndex((t) => t.id === obj.id);
     if (tasksArr[index].type === obj.type) {
       tasksArr[index] = obj;
     } else {
-      let updatedArray = tasksArr.filter((t) => t.id !== obj.id);
+      const updatedArray = tasksArr.filter((t) => t.id !== obj.id);
       storageData.projects[key].tasks = updatedArray;
       storageData.projects[obj.type].tasks.push(obj);
     }
@@ -91,73 +152,12 @@ const Storage = function () {
   }
 
   function deleteProject(key, obj) {
-    let field = storageData.projects[key];
+    const field = storageData.projects[key];
     if (field) {
-      if ((field.id = obj.id)) delete storageData.projects[key];
+      if (field.id === obj.id) delete storageData.projects[key];
     } else console.log(`No Project under the name ${key} exists`);
   }
 
-  function convertTasks(key) {
-    if (key) {
-      console.log("key: ", key);
-      Object.values(
-        (storageData.projects[key].tasks = storageData.projects[key].tasks.map(
-          (t) => {
-            let current = task(t.title, t.dueDate, t.description);
-            current.setId(t.id);
-            current.setType(t.type);
-            console.log("converted task: ", current);
-            return current;
-          }
-        ))
-      );
-    } else
-      Object.values(storageData.projects).forEach(
-        (project) =>
-          (project.tasks = project.tasks.map((t) => {
-            // console.log(t);
-            let current = task(t.title, t.dueDate, t.description);
-            current.setId(t.id);
-            current.setType(t.type);
-            return current;
-            // console.log(t);
-          }))
-      );
-  }
-
-  function revertTasks(key) {
-    if (key) {
-      Object.values(
-        (storageData.projects[key].tasks = storageData.projects[key].tasks.map(
-          (t) => {
-            let current = {
-              title: t.getTitle(),
-              dueDate: t.getDueDate(),
-              description: t.getDescription(),
-              id: t.getId(),
-              type: t.getType(),
-            };
-
-            console.log("reverted task: ", current);
-            return current;
-          }
-        ))
-      );
-    } else
-      Object.values(storageData.projects).forEach(
-        (project) =>
-          (project.tasks = project.tasks.map((t) => {
-            let current = {
-              title: t.getTitle(),
-              dueDate: t.getDueDate(),
-              description: t.getDescription(),
-              id: t.getId(),
-              type: t.getType(),
-            };
-            return current;
-          }))
-      );
-  }
   function getStorage() {
     return storageData;
   }
@@ -172,9 +172,9 @@ const Storage = function () {
     convertTasks,
     revertTasks,
   };
-};
+}
 
-let storage = Storage();
+const storage = Storage();
 export default storage;
 // Create an instance of the task object
 
@@ -217,57 +217,3 @@ storage.addTask(
   },
   "school"
 );
-
-let mainStorage = storage.getStorage();
-// let identifier = mainStorage.projects.inbox.tasks[0].id;
-console.log("main Storage: ", mainStorage);
-
-// storage.deleteTask("inbox", {
-//   name: "Inbox",
-//   date: "06/06/2019",
-//   tasks: [],
-//   id: "123",
-// });
-
-// setTimeout(function () {
-//   storage.deleteTask("inbox", {
-//     name: "Inbox",
-//     date: "06/06/2019",
-//     tasks: [],
-//     id: identifier,
-//   });
-//   console.log("main Storage: ", mainStorage), 8000;
-// });
-// storage.convertTasks("school");
-// console.log("Converted Storage: ", mainStorage);
-// console.log("based");
-
-// setTimeout(function () {
-//   storage.revertTasks("school");
-//   console.log("Reverted Storage: ", mainStorage);
-// }, 10000);
-// storage.revertTasks();
-
-/*
-storageData {
-    Projects: {
-        Inbox: {
-            name: inbox;
-            date: created;
-            tasks: {
-                task[0]: value[0];
-                task[1]: value[1];
-                task[2]: value[2];
-            }
-        } Project[0]: {
-            name: projectname;
-            date: created;
-            task: {
-                task[0]: value[0];
-                task[1]: value[1];
-                task[2]: value[2];
-            }
-        }
-    }
-}
-*/

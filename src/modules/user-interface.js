@@ -1,3 +1,4 @@
+import { format, isFuture, parseISO } from "date-fns";
 import storage from "./storage";
 import task from "./task";
 import {
@@ -7,7 +8,6 @@ import {
   formatDate,
   formatDueDate,
 } from "./functions";
-import { format, isFuture, parseISO } from "date-fns";
 import { renderSideBar } from "./user-interface/sidebar";
 
 const loadUserInterface = function () {
@@ -28,8 +28,7 @@ const loadUserInterface = function () {
   const select = document.querySelector(".add-select");
   const editSelect = document.querySelector(".edit-select");
 
-  let mainStorage = storage.getStorage();
-  initialRender("inbox");
+  const mainStorage = storage.getStorage();
 
   // Aside UI Elements
   const allBtn = document.querySelector(".all-btn");
@@ -39,31 +38,31 @@ const loadUserInterface = function () {
   const tasks = document.querySelector(".aside-tasks");
 
   function renderTask(t) {
-    let div = document.createElement("div");
+    const div = document.createElement("div");
     div.classList.add("task-div");
     div.setAttribute("data-id", `${t.getId()}`);
     div.setAttribute("data-type", `${t.getType()}`);
 
-    let h3 = document.createElement("h3");
+    const h3 = document.createElement("h3");
     h3.classList.add("task-title");
     h3.textContent = `Title: ${t.getTitle()}`;
 
-    let date = document.createElement("p");
+    const date = document.createElement("p");
     date.classList.add("task-date");
     date.textContent = `Date: ${t.getDueDate()}`;
 
-    let description = document.createElement("p");
+    const description = document.createElement("p");
     description.classList.add("task-description");
     description.textContent = `Description: ${t.getDescription()}`;
 
-    let btndiv = document.createElement("div");
+    const btndiv = document.createElement("div");
     btndiv.classList.add("btn-container");
 
-    let editBtn = document.createElement("button");
+    const editBtn = document.createElement("button");
     editBtn.textContent = "Edit";
     editBtn.classList.add("edit-btn");
 
-    let delBtn = document.createElement("button");
+    const delBtn = document.createElement("button");
     delBtn.textContent = "Delete";
     delBtn.classList.add("del-btn");
 
@@ -73,10 +72,10 @@ const loadUserInterface = function () {
   }
 
   function renderSelection(element) {
-    element.innerHTML = ``;
-    let data = storage.getStorage();
-    for (let key of Object.keys(data.projects)) {
-      let option = document.createElement("option");
+    element.innerHTML = "";
+    const data = storage.getStorage();
+    for (const key of Object.keys(data.projects)) {
+      const option = document.createElement("option");
       option.value = key;
       option.textContent = key;
       element.appendChild(option);
@@ -85,21 +84,21 @@ const loadUserInterface = function () {
 
   function initialRender(key) {
     renderSelection(select);
-    taskContainer.textContent = ``;
+    taskContainer.textContent = "";
     storage.convertTasks();
     key = key.slice(0, 1).toLowerCase() + key.slice(1);
     if (key === "all") {
       mainTitle.textContent = "All";
-      for (let project of Object.values(mainStorage.projects)) {
+      for (const project of Object.values(mainStorage.projects)) {
         project.tasks.forEach((task) => {
           renderTask(task);
         });
       }
     } else if (key === "today") {
       mainTitle.textContent = "Today";
-      for (let project of Object.values(mainStorage.projects)) {
+      for (const project of Object.values(mainStorage.projects)) {
         project.tasks.forEach((task) => {
-          let today = format(new Date(), "MM-dd-yyyy");
+          const today = format(new Date(), "MM-dd-yyyy");
           if (task.getDueDate() === today) {
             renderTask(task);
           }
@@ -107,10 +106,10 @@ const loadUserInterface = function () {
       }
     } else if (key === "upcoming") {
       mainTitle.textContent = "Upcoming";
-      for (let project of Object.values(mainStorage.projects)) {
+      for (const project of Object.values(mainStorage.projects)) {
         project.tasks.forEach((task) => {
           // let today = format(new Date(), "MM-dd-yyyy");
-          let due = formatDueDate(task.getDueDate());
+          const due = formatDueDate(task.getDueDate());
           if (isFuture(parseISO(due))) {
             renderTask(task);
           }
@@ -131,7 +130,7 @@ const loadUserInterface = function () {
   }
 
   function toggleForm(...elements) {
-    let formElements = [...elements];
+    const formElements = [...elements];
     formElements.forEach((el) => el.classList.toggle("hidden"));
   }
 
@@ -144,37 +143,37 @@ const loadUserInterface = function () {
       // Check if edit task is affected by this
       const description = document.getElementById("description").value;
       const type = document.getElementById("type").value;
-      let updatedDescription = description.trim() !== "" ? description : "";
-      let taskInstance = task(title, date, updatedDescription);
+      const updatedDescription = description.trim() !== "" ? description : "";
+      const taskInstance = task(title, date, updatedDescription);
       taskInstance.setType(type);
 
-      let t = {
-        title: title,
+      const t = {
+        title,
         dueDate: date,
         description: updatedDescription,
         id: taskInstance.getId(),
-        type: type,
+        type,
       };
 
       storage.addTask(t, type);
 
-      // Rendering all task instead of 1. Space Complexity is not an issue due to local storage limitations
+      // Rendering all task instead of 1.
       initialRender(mainTitle.textContent);
     }
   }
 
   function RenderEditForm(target) {
     // Fix Date Formating and clean up code
-    let buttonDiv = target.closest(".btn-container");
+    const buttonDiv = target.closest(".btn-container");
     insertAfter(editTaskForm, buttonDiv);
     renderSelection(editSelect);
     toggleForm(editTaskForm, editBtnContainer);
-    let children = target.closest(".task-div").children;
+    const { children } = target.closest(".task-div");
     const title = document.getElementById("edit-name");
     const description = document.getElementById("edit-description");
     // let updatedDescription = description.trim() !== "" ? description : "";
     const date = document.getElementById("edit-date");
-    let elements = [title, description];
+    const elements = [title, description];
     elements.forEach((el, i) => {
       if (!children[i].innerText.split(": ")[1]) {
         el.value = "";
@@ -187,7 +186,9 @@ const loadUserInterface = function () {
 
     if (splitDate) {
       splitDate = splitDate.split("-");
-      let formattedDate = [splitDate[2], splitDate[0], splitDate[1]].join("-");
+      const formattedDate = [splitDate[2], splitDate[0], splitDate[1]].join(
+        "-"
+      );
       date.value = formattedDate;
     } else {
       date.value = "";
@@ -196,29 +197,29 @@ const loadUserInterface = function () {
 
   function submitEditForm(e) {
     if (validateForm("edit-form")) {
-      let div = e.target.closest(".task-div");
+      const div = e.target.closest(".task-div");
       const title = document.getElementById("edit-name").value;
       const date = formatDate(document.getElementById("edit-date").value);
       const description = document.getElementById("edit-description").value;
       const type = document.getElementById("edit-type").value;
 
-      let taskInstance = task(title, date, description);
+      const taskInstance = task(title, date, description);
       taskInstance.setType(type);
       //
-      let t = {
-        title: title,
+      const t = {
+        title,
         dueDate: date,
-        description: description,
+        description,
         id: div.dataset.id,
-        type: type,
+        type,
       };
       console.log("t:type:", t.type);
       console.log("t:id:", t.id);
       console.log("during:", taskContainer.children);
 
-      let data = storage.getStorage();
-      for (let [key, value] of Object.entries(data.projects)) {
-        value.tasks.forEach((task, index) => {
+      const data = storage.getStorage();
+      for (const [key, value] of Object.entries(data.projects)) {
+        value.tasks.forEach((task) => {
           if (task.id === div.dataset.id) {
             // rendering all tasks in key after editing task in storage
             storage.editTask(t, key);
@@ -229,40 +230,41 @@ const loadUserInterface = function () {
       }
     }
   }
+  initialRender("inbox");
 
   // Event Listeners
 
   // Add Task
-  taskBtn.addEventListener("click", function (e) {
+  taskBtn.addEventListener("click", (e) => {
     toggleForm(taskForm, taskBtn, confirmBtn, cancelBtn);
   });
 
-  cancelBtn.addEventListener("click", function (e) {
+  cancelBtn.addEventListener("click", (e) => {
     toggleForm(taskForm, taskBtn, confirmBtn, cancelBtn);
   });
 
-  confirmBtn.addEventListener("click", function (e) {
+  confirmBtn.addEventListener("click", (e) => {
     e.preventDefault();
     submitForm();
     toggleForm(taskForm, taskBtn, confirmBtn, cancelBtn);
   });
 
   // Edit Task
-  taskContainer.addEventListener("click", function (e) {
-    let button = e.target;
+  taskContainer.addEventListener("click", (e) => {
+    const button = e.target;
 
     if (button.classList.contains("edit-btn")) {
       // edit task function here
       RenderEditForm(button);
     } else if (button.classList.contains("del-btn")) {
       // delete task here
-      let div = button.closest(".task-div");
-      let description = div.closest(".task-description");
-      let id = div.getAttribute("data-id");
-      let type = div.getAttribute("data-type");
-      let task = {
-        id: id,
-        description: description,
+      const div = button.closest(".task-div");
+      const description = div.closest(".task-description");
+      const id = div.getAttribute("data-id");
+      const type = div.getAttribute("data-type");
+      const task = {
+        id,
+        description,
       };
       storage.deleteTask(task, type);
       console.log("deleting");
@@ -271,31 +273,31 @@ const loadUserInterface = function () {
     }
   });
 
-  editConfirmBtn.addEventListener("click", function (e) {
+  editConfirmBtn.addEventListener("click", (e) => {
     e.preventDefault();
     submitEditForm(e);
     console.log("After: ", taskContainer.children);
   });
 
-  editCancelBtn.addEventListener("click", function (e) {
+  editCancelBtn.addEventListener("click", (e) => {
     toggleForm(editTaskForm, editBtnContainer);
   });
 
   // SideBar
-  tasks.addEventListener("click", function (e) {
-    let element = e.target;
+  tasks.addEventListener("click", (e) => {
+    const element = e.target;
     if (element.tagName === "BUTTON") {
-      let field = element.textContent.split(" ")[0];
+      const field = element.textContent.split(" ")[0];
       initialRender(field);
     }
   });
 
-  projects.addEventListener("click", function (e) {
-    let button = e.target;
+  projects.addEventListener("click", (e) => {
+    const button = e.target;
 
     if (button.classList.contains("project-btn")) {
       if (button.textContent) {
-        let field = button.textContent.split(" ")[0];
+        const field = button.textContent.split(" ")[0];
         initialRender(field);
       }
     }
