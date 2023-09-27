@@ -13,7 +13,7 @@ const project = function (name) {
   }
 
   function setDate() {
-    dateCreated = format(new Date(), "mm-dd-yyyy");
+    dateCreated = format(new Date(), "MM-dd-yyyy");
   }
 
   function getDate() {
